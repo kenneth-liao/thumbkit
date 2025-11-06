@@ -49,12 +49,12 @@ All thumbnails you create **MUST** meet the following requirements. Failure to m
 ### **ALWAYS:**
 - ✅ Use text that **complements** (not repeats) the video title
 - ✅ Ensure text is large enough to read at mobile thumbnail size
-- ✅ Keep text minimal and impactful
+- ✅ Keep text **minimal** and impactful
 - ✅ Test text readability at small sizes
 
 ### **Best Practice - Short, Punchy Text:**
 - Use brief, impactful phrases that describe the video
-- Example: "10x Your Creative Production" (with visual emphasis like neon background highlights)
+- Example: "10x Your Output" (with visual emphasis like neon background highlights)
 - **Exception**: Slightly longer text is acceptable when there are minimal other elements and text takes up most of the space
 - Text should be descriptive and add value beyond the title
 
