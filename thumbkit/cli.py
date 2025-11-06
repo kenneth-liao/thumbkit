@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from thumbkit.core import (
     MODEL_NAME,
     generate_image_bytes,
@@ -14,7 +14,8 @@ from thumbkit.core import (
     save_image_bytes,
 )
 
-load_dotenv()
+# Load .env from current working directory or parent directories
+load_dotenv(find_dotenv(usecwd=True))
 
 
 def _read_text(path: Optional[str]) -> Optional[str]:
