@@ -49,6 +49,8 @@ export GEMINI_API_KEY=your_api_key_here
 thumbkit generate --prompt "Create an eye-catching YouTube thumbnail"
 ```
 
+**For Claude Agents:** Run `thumbkit docs` to get the complete, version-matched CLI reference. This ensures you always have documentation that matches the installed version.
+
 ## Setup for Development
 
 1) Ensure Python 3.13+ and `uv` are installed.
