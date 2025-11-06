@@ -16,9 +16,8 @@
    - [edit](#edit-command)
 5. [Output Behavior](#output-behavior)
 6. [System Prompt](#system-prompt)
-7. [Examples](#examples)
-8. [Error Handling](#error-handling)
-9. [Best Practices for Claude Agents](#best-practices-for-claude-agents)
+7. [Error Handling](#error-handling)
+8. [Best Practices for Claude Agents](#best-practices-for-claude-agents)
 
 ---
 
@@ -34,8 +33,6 @@ All generated images are:
 - **PNG format**
 - Saved with timestamped filenames
 - Optimized for high-converting YouTube thumbnails
-
----
 
 ## Installation
 
@@ -74,8 +71,6 @@ uv sync
 uv run thumbkit <command> [options]
 ```
 
----
-
 ## Environment Setup
 
 ### Required Environment Variables
@@ -97,8 +92,6 @@ export GEMINI_API_KEY="your-api-key-here"
 ```bash
 export THUMBKIT_OUTPUT_DIR="/path/to/output"
 ```
-
----
 
 ## Commands
 
@@ -172,8 +165,6 @@ Saved to /path/to/.thumbkit-generations/thumbkit-20251106-214644-047173.png
   "reference_image_paths": []
 }
 ```
-
----
 
 ### `edit` Command
 
@@ -249,8 +240,6 @@ Saved to /path/to/.thumbkit-generations/thumbkit-edit-20251106-214644-047173.png
 }
 ```
 
----
-
 ## Output Behavior
 
 ### File Naming Convention
@@ -273,8 +262,6 @@ Generated files use timestamped names:
 - All images are saved as **PNG** format
 - Images are always **16:9 aspect ratio** (unless `--aspect` is changed)
 - File paths are returned as absolute paths
-
----
 
 ## System Prompt
 
@@ -314,69 +301,6 @@ thumbkit generate \
 
 The custom prompt file should be plain text (UTF-8 encoded).
 
----
-
-## Examples
-
-### Basic Generation
-
-```bash
-thumbkit generate --prompt "Coding tutorial with Python logo"
-```
-
-### Generation with Reference Images
-
-```bash
-thumbkit generate \
-  --prompt "Tech review thumbnail with neon aesthetic" \
-  --ref /Users/username/images/neon-style.png \
-  --ref /Users/username/images/tech-layout.jpg
-```
-
-### Generation with JSON Output
-
-```bash
-thumbkit generate \
-  --prompt "Fitness transformation thumbnail" \
-  --json
-```
-
-### Edit Existing Image
-
-```bash
-thumbkit edit \
-  --prompt "Add dramatic lighting and increase contrast" \
-  --base /Users/username/thumbnails/original-thumbnail.png
-```
-
-### Edit with Style Transfer
-
-```bash
-thumbkit edit \
-  --prompt "Apply the style from the reference images" \
-  --base /Users/username/thumbnails/my-thumbnail.png \
-  --ref /Users/username/styles/cinematic-style.png \
-  --ref /Users/username/styles/color-grading.jpg
-```
-
-### Custom Output Directory
-
-```bash
-thumbkit generate \
-  --prompt "Travel vlog thumbnail" \
-  --out-dir ~/Desktop/thumbnails
-```
-
-### Custom Aspect Ratio
-
-```bash
-thumbkit generate \
-  --prompt "Instagram post" \
-  --aspect "1:1"
-```
-
----
-
 ## Error Handling
 
 thumbkit provides **comprehensive, actionable error messages** specifically designed to help Claude agents debug and fix issues quickly. Every error includes:
@@ -386,41 +310,7 @@ thumbkit provides **comprehensive, actionable error messages** specifically desi
 
 ### Common Errors and Solutions
 
-#### 1. Relative Path Error
-
-**Error:**
-```
-ERROR: --ref (image #1) must be an ABSOLUTE path, but got relative path: images/style.png
-
-SOLUTION: Convert to absolute path before calling thumbkit.
-Examples:
-  Python: os.path.abspath('images/style.png')
-  Shell:  $(realpath images/style.png)
-
-Since thumbkit is installed globally, it can be run from any directory.
-Relative paths will fail because they're resolved from the current working directory.
-Always use absolute paths like: /Users/username/images/file.png
-```
-
-**What to do:** Convert all image paths to absolute paths before calling thumbkit.
-
----
-
-#### 2. File Not Found
-
-**Error:**
-```
-ERROR: --ref (image #1) file does not exist: /Users/username/missing.png
-
-SOLUTION: Verify the file path is correct and the file exists.
-Check for typos in the path or ensure the file hasn't been moved/deleted.
-```
-
-**What to do:** Verify the file exists at the specified path. Check for typos.
-
----
-
-#### 3. Invalid File Type
+#### 1. Invalid File Type
 
 **Error:**
 ```
@@ -436,32 +326,7 @@ Current file: /Users/username/image.gif
 
 **What to do:** Convert the image to PNG, JPEG, or WebP format.
 
----
-
-#### 4. Missing API Key
-
-**Error:**
-```
-ERROR: Missing GEMINI_API_KEY environment variable.
-
-SOLUTION: Set your Gemini API key in one of these ways:
-  1. Create a .env file in your current directory:
-     echo 'GEMINI_API_KEY=your-key-here' > .env
-
-  2. Export as environment variable:
-     export GEMINI_API_KEY='your-key-here'
-
-  3. Use GOOGLE_API_KEY instead (alternative name):
-     export GOOGLE_API_KEY='your-key-here'
-
-Get your API key at: https://ai.google.dev/
-```
-
-**What to do:** Set the API key using one of the methods shown.
-
----
-
-#### 5. No Image Returned from API
+#### 2. No Image Returned from API
 
 **Error:**
 ```
@@ -481,9 +346,7 @@ SOLUTIONS:
 
 **What to do:** Follow the troubleshooting steps in order.
 
----
-
-#### 6. Multiple Reference Images Syntax Error
+#### 3. Multiple Reference Images Syntax Error
 
 **Error:**
 ```
@@ -508,14 +371,10 @@ thumbkit generate --prompt "test" --ref ["/path/1.png", "/path/2.png"]
 thumbkit generate --prompt "test" --ref /path/1.png --ref /path/2.png
 ```
 
----
-
 ### Exit Codes
 
 - `0` - Success
 - `1` - Error occurred (detailed message in stderr)
-
----
 
 ## Best Practices for Claude Agents
 
@@ -527,65 +386,9 @@ thumbkit generate --prompt "test" --ref /path/1.png --ref /path/2.png
 - **NEVER** use relative paths (e.g., `./image.png`, `../folder/image.jpg`)
 - Since thumbkit runs globally, relative paths will fail when run from different directories
 
-**How to get absolute paths:**
-- Use `os.path.abspath()` in Python
-- Use `realpath()` or `readlink -f` in shell
-- Expand `~` to full home directory path
-- If user provides relative path, convert it to absolute before passing to thumbkit
-
-**Example conversions:**
-```python
-# Python
-import os
-relative_path = "images/style.png"
-absolute_path = os.path.abspath(relative_path)
-# Use absolute_path with thumbkit
-
-# Shell
-absolute_path=$(realpath images/style.png)
-thumbkit generate --prompt "test" --ref "$absolute_path"
-```
-
-### When to Use `generate` vs `edit`
-
-**Use `generate` when:**
-- Creating a new thumbnail from scratch
-- User provides only text description
-- No existing image to modify
-
-**Use `edit` when:**
-- User has an existing image to modify
-- User wants to apply style transfer
-- User wants to refine/improve an existing thumbnail
-
 ### Handling Reference Images
 
 **⚠️ REMEMBER: All image paths MUST be absolute!**
-
-Before passing any image path to thumbkit:
-1. Convert relative paths to absolute paths
-2. Expand `~` to full home directory
-3. Verify the file exists at the absolute path
-
-**Reference images are for style/composition guidance, NOT content:**
-- Use references to show desired visual style, color palette, or layout
-- Don't expect the model to copy specific elements from references
-- Multiple references can provide richer style guidance
-- **All reference paths must be absolute** (e.g., `/Users/username/images/style.png`)
-
-### Prompt Engineering Tips
-
-**Good prompts are:**
-- Specific about visual elements (colors, composition, subjects)
-- Clear about the video topic/theme
-- Descriptive of desired mood/emotion
-- Concise but detailed
-
-**Example good prompts:**
-- ✅ "Dramatic close-up of a shocked face with bold yellow text 'UNBELIEVABLE' on vibrant red background"
-- ✅ "Split-screen comparison showing before/after transformation with arrow pointing right"
-- ❌ "Make a thumbnail" (too vague)
-- ❌ "Create something cool" (not specific)
 
 ### Using JSON Output
 
@@ -599,22 +402,6 @@ Before passing any image path to thumbkit:
 - `bytes` - File size in bytes
 - `aspect_ratio` - Confirmed aspect ratio
 - `reference_image_paths` - List of reference images used
-
-### Error Recovery
-
-**thumbkit provides detailed error messages - always read them carefully!**
-
-Every error message includes:
-- **What went wrong** - Clear description of the error
-- **Why it happened** - Explanation of the root cause
-- **How to fix it** - Specific, actionable steps with examples
-
-**Error handling workflow:**
-1. **Read the full error message** - Don't just look at the first line
-2. **Follow the SOLUTION steps** - They're specific to the error type
-3. **Use the code examples** - Copy/paste the suggested fixes
-4. **Verify your fix** - Check that paths are absolute, files exist, etc.
-5. **Try again** - Most errors are fixable with the provided guidance
 
 **Common fixes:**
 - **Path errors** → Convert to absolute paths using `os.path.abspath()`
@@ -634,8 +421,6 @@ Every error message includes:
 - Multiple reference images increase processing time
 - Use `--json` for faster parsing (no need to parse human-readable text)
 
----
-
 ## Additional Notes
 
 - The CLI automatically loads `.env` files in the current directory
@@ -643,4 +428,3 @@ Every error message includes:
 - Images are always returned as PNG regardless of reference image formats
 - The system prompt is embedded in the package and loaded automatically
 - Custom system prompts must be UTF-8 encoded text files
-

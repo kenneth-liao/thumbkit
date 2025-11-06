@@ -1,6 +1,10 @@
-# thumbkit MCP Server
+# thumbkit
 
-A YouTube thumbnail generator MCP server that drives the Gemini “Nano Banana” image generation model via the Gemini API.
+A YouTube thumbnail generator that drives the Gemini “Nano Banana” image generation model via the Gemini API.
+
+Provides both:
+- **CLI tool** (`thumbkit`) - Command-line interface for generating and editing thumbnails
+- **MCP server** (`thumbkit-mcp`) - Model Context Protocol server for Claude Desktop integration
 
 ## MCP Requirements
 
@@ -24,7 +28,28 @@ Each tool returns:
 - An inline image content block (MCP ImageContent), and
 - Structured metadata including a file path where the image is saved under `./outputs/`
 
-## Setup
+## Quick Start - CLI Tool
+
+Install globally:
+
+```bash
+uv tool install git+https://github.com/kenneth-liao/thumbkit.git
+```
+
+View full documentation:
+
+```bash
+thumbkit docs
+```
+
+Generate a thumbnail:
+
+```bash
+export GEMINI_API_KEY=your_api_key_here
+thumbkit generate --prompt "Create an eye-catching YouTube thumbnail"
+```
+
+## Setup for Development
 
 1) Ensure Python 3.13+ and `uv` are installed.
 2) Set your Gemini API key in the environment (the SDK accepts `GEMINI_API_KEY` or `GOOGLE_API_KEY`):

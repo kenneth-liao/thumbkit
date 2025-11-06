@@ -25,4 +25,5 @@ packages = ["thumbkit"]
 include = [
     "thumbkit/**/*.py",
     "thumbkit/system_prompt.md",
+    "thumbkit/CLI_REFERENCE.md",
 ]

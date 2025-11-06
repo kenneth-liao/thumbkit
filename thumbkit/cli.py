@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
+from importlib import resources
 from dotenv import load_dotenv, find_dotenv
 from thumbkit.core import (
     MODEL_NAME,
@@ -139,6 +140,23 @@ def cmd_generate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_docs(args: argparse.Namespace) -> int:
+    """Display the CLI documentation."""
+    try:
+        # Try to load packaged documentation
+        pkg_file = resources.files("thumbkit").joinpath("CLI_REFERENCE.md")
+        if pkg_file.is_file():
+            docs = pkg_file.read_text(encoding="utf-8")
+            print(docs)
+            return 0
+    except Exception as e:
+        print(f"Error loading documentation: {e}", file=sys.stderr)
+        return 1
+
+    print("Error: Documentation not found in package.", file=sys.stderr)
+    return 1
+
+
 def cmd_edit(args: argparse.Namespace) -> int:
     # Validate base image
     validate_image_path(args.base, "--base")
@@ -188,7 +206,11 @@ def cmd_edit(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser("thumbkit", description="YouTube thumbnail generator CLI (Gemini)")
+    p = argparse.ArgumentParser(
+        "thumbkit",
+        description="YouTube thumbnail generator CLI (Gemini)",
+        epilog="Run 'thumbkit docs' for full documentation"
+    )
     sub = p.add_subparsers(dest="cmd", required=False)
 
     g = sub.add_parser("generate", help="Generate an image from text and optional reference images")
@@ -209,6 +231,9 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--out-dir", help="Output directory (default: CWD or $THUMBKIT_OUTPUT_DIR)")
     e.add_argument("--json", action="store_true", help="Print JSON result")
     e.set_defaults(func=cmd_edit)
+
+    d = sub.add_parser("docs", help="Display the full CLI documentation")
+    d.set_defaults(func=cmd_docs)
 
     return p
 
