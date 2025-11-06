@@ -88,7 +88,7 @@ def cmd_edit(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser("thumbkit", description="YouTube thumbnail generator CLI (Gemini)")
-    sub = p.add_subparsers(dest="cmd", required=True)
+    sub = p.add_subparsers(dest="cmd", required=False)
 
     g = sub.add_parser("generate", help="Generate an image from text and optional reference images")
     g.add_argument("--prompt", required=True, help="Text prompt")
@@ -115,6 +115,12 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Optional[List[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    # If no command provided, show help
+    if not args.cmd:
+        parser.print_help()
+        return 0
+
     try:
         return args.func(args)
     except Exception as e:
