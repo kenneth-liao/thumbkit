@@ -39,15 +39,39 @@ All generated images are:
 
 ## Installation
 
+### Global Installation (Recommended)
+
+Install thumbkit globally so it's available from anywhere on your system:
+
 ```bash
-# Install via uv (recommended)
+# Install from GitHub
+uv tool install git+https://github.com/kenneth-liao/thumbkit.git
+
+# Run from anywhere
+thumbkit <command> [options]
+```
+
+### Update Existing Installation
+
+```bash
+# Upgrade to latest version
+uv tool upgrade thumbkit
+```
+
+### Development Installation
+
+For local development only:
+
+```bash
+# Clone the repository
+git clone https://github.com/kenneth-liao/thumbkit.git
+cd thumbkit
+
+# Install dependencies
 uv sync
 
-# Run commands
+# Run commands (local development only)
 uv run thumbkit <command> [options]
-
-# Or install globally
-uvx thumbkit <command> [options]
 ```
 
 ---
@@ -85,7 +109,7 @@ Generate a new thumbnail from a text prompt with optional reference images.
 #### Syntax
 
 ```bash
-uv run thumbkit generate --prompt "PROMPT" [OPTIONS]
+thumbkit generate --prompt "PROMPT" [OPTIONS]
 ```
 
 #### Required Arguments
@@ -114,7 +138,7 @@ Reference images are used for **style transfer** and **visual guidance**:
 
 **Example:**
 ```bash
-uv run thumbkit generate \
+thumbkit generate \
   --prompt "Tech tutorial thumbnail with neon highlights" \
   --ref examples/style1.png \
   --ref examples/style2.jpg
@@ -146,7 +170,7 @@ Edit an existing image with optional reference images for style transfer.
 #### Syntax
 
 ```bash
-uv run thumbkit edit --prompt "EDIT_INSTRUCTIONS" --base "BASE_IMAGE" [OPTIONS]
+thumbkit edit --prompt "EDIT_INSTRUCTIONS" --base "BASE_IMAGE" [OPTIONS]
 ```
 
 #### Required Arguments
@@ -249,7 +273,7 @@ thumbkit includes a comprehensive built-in system prompt that guides the AI to c
 Override the default with `--system-prompt`:
 
 ```bash
-uv run thumbkit generate \
+thumbkit generate \
   --prompt "Gaming thumbnail" \
   --system-prompt custom_instructions.txt
 ```
@@ -263,13 +287,13 @@ The custom prompt file should be plain text (UTF-8 encoded).
 ### Basic Generation
 
 ```bash
-uv run thumbkit generate --prompt "Coding tutorial with Python logo"
+thumbkit generate --prompt "Coding tutorial with Python logo"
 ```
 
 ### Generation with Reference Images
 
 ```bash
-uv run thumbkit generate \
+thumbkit generate \
   --prompt "Tech review thumbnail with neon aesthetic" \
   --ref examples/neon-style.png \
   --ref examples/tech-layout.jpg
@@ -278,7 +302,7 @@ uv run thumbkit generate \
 ### Generation with JSON Output
 
 ```bash
-uv run thumbkit generate \
+thumbkit generate \
   --prompt "Fitness transformation thumbnail" \
   --json
 ```
@@ -286,7 +310,7 @@ uv run thumbkit generate \
 ### Edit Existing Image
 
 ```bash
-uv run thumbkit edit \
+thumbkit edit \
   --prompt "Add dramatic lighting and increase contrast" \
   --base original-thumbnail.png
 ```
@@ -294,7 +318,7 @@ uv run thumbkit edit \
 ### Edit with Style Transfer
 
 ```bash
-uv run thumbkit edit \
+thumbkit edit \
   --prompt "Apply the style from the reference images" \
   --base my-thumbnail.png \
   --ref cinematic-style.png \
@@ -304,7 +328,7 @@ uv run thumbkit edit \
 ### Custom Output Directory
 
 ```bash
-uv run thumbkit generate \
+thumbkit generate \
   --prompt "Travel vlog thumbnail" \
   --out-dir ~/Desktop/thumbnails
 ```
@@ -312,7 +336,7 @@ uv run thumbkit generate \
 ### Custom Aspect Ratio
 
 ```bash
-uv run thumbkit generate \
+thumbkit generate \
   --prompt "Instagram post" \
   --aspect "1:1"
 ```
