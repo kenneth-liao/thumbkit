@@ -11,3 +11,6 @@ wheels/
 
 # Secrets
 .env
+
+# Generated thumbnails
+.thumbkit-generations/

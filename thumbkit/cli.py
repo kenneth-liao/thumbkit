@@ -27,9 +27,9 @@ def _read_text(path: Optional[str]) -> Optional[str]:
 
 
 def _default_out_dir() -> Path:
-    # Allow override via env; prefer THUMBKIT_OUTPUT_DIR, fallback to NANOBANANA_OUTPUT_DIR
-    env = os.environ.get("THUMBKIT_OUTPUT_DIR") or os.environ.get("NANOBANANA_OUTPUT_DIR")
-    return Path(env) if env else (Path.cwd() / ".nanobanana-generations")
+    # Allow override via THUMBKIT_OUTPUT_DIR environment variable
+    env = os.environ.get("THUMBKIT_OUTPUT_DIR")
+    return Path(env) if env else (Path.cwd() / ".thumbkit-generations")
 
 
 def cmd_generate(args: argparse.Namespace) -> int:

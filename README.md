@@ -1,6 +1,6 @@
-# nanobanana MCP Server
+# thumbkit MCP Server
 
-A minimal MCP server that drives the Gemini “Nano Banana” image generation model via the Gemini API.
+A YouTube thumbnail generator MCP server that drives the Gemini “Nano Banana” image generation model via the Gemini API.
 
 ## MCP Requirements
 
@@ -52,21 +52,27 @@ uv add mcp
 ## Run (local dev with MCP Inspector)
 
 ```bash
-uv run mcp dev main.py
+uv run mcp dev thumbkit/mcp_server.py
 ```
 
-This launches a local MCP Inspector for testing. You should see the `nanobanana` server with two tools.
+This launches a local MCP Inspector for testing. You should see the `thumbkit` server with two tools.
 
 ## Install into Claude Desktop (optional)
 
 ```bash
-uv run mcp install main.py --name nanobanana
+uvx thumbkit-mcp
+```
+
+Or install via `mcp` CLI:
+
+```bash
+uv run mcp install thumbkit/mcp_server.py --name thumbkit
 ```
 
 You can pass env vars at install time as needed:
 
 ```bash
-uv run mcp install main.py --name nanobanana -v GEMINI_API_KEY=$GEMINI_API_KEY
+uv run mcp install thumbkit/mcp_server.py --name thumbkit -v GEMINI_API_KEY=$GEMINI_API_KEY
 ```
 
 ## Examples

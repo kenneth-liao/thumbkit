@@ -1,2 +1,2 @@
-- [NanoBanana Prompt Guide](https://ai.google.dev/gemini-api/docs/image-generation#prompt-guide)
+- [Gemini Image Generation Prompt Guide](https://ai.google.dev/gemini-api/docs/image-generation#prompt-guide)
 - [Prompt Templates for Proven Thumbnail Styles](https://skywork.ai/blog/youtube-thumbnail-templates-nano-banana-prompts-2025/)

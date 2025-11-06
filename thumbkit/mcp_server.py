@@ -20,9 +20,9 @@ load_dotenv()
 # Server name displayed to MCP clients
 mcp = FastMCP("thumbkit")
 
-# Output dir: $THUMBKIT_OUTPUT_DIR (preferred) or $NANOBANANA_OUTPUT_DIR, else hidden folder in CWD
-env = os.environ.get("THUMBKIT_OUTPUT_DIR") or os.environ.get("NANOBANANA_OUTPUT_DIR")
-OUTPUT_DIR = (Path(env) if env else (Path.cwd() / ".nanobanana-generations")).resolve()
+# Output dir: $THUMBKIT_OUTPUT_DIR or default to hidden folder in CWD
+env = os.environ.get("THUMBKIT_OUTPUT_DIR")
+OUTPUT_DIR = (Path(env) if env else (Path.cwd() / ".thumbkit-generations")).resolve()
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
