@@ -136,7 +136,19 @@ Reference images are used for **style transfer** and **visual guidance**:
 - Supported formats: PNG, JPEG, WebP
 - Images are sent to Gemini before the text prompt
 
-**Example:**
+**⚠️ IMPORTANT: Use ABSOLUTE paths for reference images!**
+
+Since `thumbkit` is installed globally and can be run from any directory, you **MUST** provide absolute paths to reference images. Relative paths will fail because they're resolved from your current working directory, not where the images actually are.
+
+**✅ CORRECT - Absolute paths:**
+```bash
+thumbkit generate \
+  --prompt "Tech tutorial thumbnail with neon highlights" \
+  --ref /Users/username/images/style1.png \
+  --ref /Users/username/images/style2.jpg
+```
+
+**❌ WRONG - Relative paths (will fail if run from different directory):**
 ```bash
 thumbkit generate \
   --prompt "Tech tutorial thumbnail with neon highlights" \
@@ -189,6 +201,28 @@ thumbkit edit --prompt "EDIT_INSTRUCTIONS" --base "BASE_IMAGE" [OPTIONS]
 | `--system-prompt` | path | Built-in | Path to custom system prompt file (overrides default) |
 | `--out-dir` | path | `.thumbkit-generations/` | Output directory for edited image |
 | `--json` | flag | false | Output result as JSON instead of human-readable text |
+
+#### Image Paths
+
+**⚠️ CRITICAL: ALL image paths (--base and --ref) MUST be ABSOLUTE paths!**
+
+Since `thumbkit` runs globally from any directory, relative paths will fail. Always use absolute paths.
+
+**✅ CORRECT:**
+```bash
+thumbkit edit \
+  --prompt "Make it more dramatic" \
+  --base /Users/username/thumbnails/original.png \
+  --ref /Users/username/styles/cinematic.jpg
+```
+
+**❌ WRONG:**
+```bash
+thumbkit edit \
+  --prompt "Make it more dramatic" \
+  --base ./original.png \
+  --ref ../styles/cinematic.jpg
+```
 
 #### Image Order
 
@@ -295,8 +329,8 @@ thumbkit generate --prompt "Coding tutorial with Python logo"
 ```bash
 thumbkit generate \
   --prompt "Tech review thumbnail with neon aesthetic" \
-  --ref examples/neon-style.png \
-  --ref examples/tech-layout.jpg
+  --ref /Users/username/images/neon-style.png \
+  --ref /Users/username/images/tech-layout.jpg
 ```
 
 ### Generation with JSON Output
@@ -312,7 +346,7 @@ thumbkit generate \
 ```bash
 thumbkit edit \
   --prompt "Add dramatic lighting and increase contrast" \
-  --base original-thumbnail.png
+  --base /Users/username/thumbnails/original-thumbnail.png
 ```
 
 ### Edit with Style Transfer
@@ -320,9 +354,9 @@ thumbkit edit \
 ```bash
 thumbkit edit \
   --prompt "Apply the style from the reference images" \
-  --base my-thumbnail.png \
-  --ref cinematic-style.png \
-  --ref color-grading.jpg
+  --base /Users/username/thumbnails/my-thumbnail.png \
+  --ref /Users/username/styles/cinematic-style.png \
+  --ref /Users/username/styles/color-grading.jpg
 ```
 
 ### Custom Output Directory
@@ -374,6 +408,33 @@ Error: Gemini did not return image data.
 
 ## Best Practices for Claude Agents
 
+### ⚠️ CRITICAL: Always Use Absolute Paths for Images
+
+**This is the #1 most important rule when using thumbkit!**
+
+- **ALWAYS** use absolute paths for `--ref` and `--base` arguments
+- **NEVER** use relative paths (e.g., `./image.png`, `../folder/image.jpg`)
+- Since thumbkit runs globally, relative paths will fail when run from different directories
+
+**How to get absolute paths:**
+- Use `os.path.abspath()` in Python
+- Use `realpath()` or `readlink -f` in shell
+- Expand `~` to full home directory path
+- If user provides relative path, convert it to absolute before passing to thumbkit
+
+**Example conversions:**
+```python
+# Python
+import os
+relative_path = "images/style.png"
+absolute_path = os.path.abspath(relative_path)
+# Use absolute_path with thumbkit
+
+# Shell
+absolute_path=$(realpath images/style.png)
+thumbkit generate --prompt "test" --ref "$absolute_path"
+```
+
 ### When to Use `generate` vs `edit`
 
 **Use `generate` when:**
@@ -388,10 +449,18 @@ Error: Gemini did not return image data.
 
 ### Handling Reference Images
 
+**⚠️ REMEMBER: All image paths MUST be absolute!**
+
+Before passing any image path to thumbkit:
+1. Convert relative paths to absolute paths
+2. Expand `~` to full home directory
+3. Verify the file exists at the absolute path
+
 **Reference images are for style/composition guidance, NOT content:**
 - Use references to show desired visual style, color palette, or layout
 - Don't expect the model to copy specific elements from references
 - Multiple references can provide richer style guidance
+- **All reference paths must be absolute** (e.g., `/Users/username/images/style.png`)
 
 ### Prompt Engineering Tips
 
