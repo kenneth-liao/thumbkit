@@ -25,18 +25,7 @@ def load_default_system_prompt() -> Optional[str]:
                 return text
     except Exception:
         pass
-
-    # Fallback to project root (useful in dev checkouts)
-    try:
-        root = Path(__file__).resolve().parent.parent
-        p = root / "system_prompt.md"
-        if p.exists():
-            text = p.read_text(encoding="utf-8").strip()
-            if text:
-                return text
-    except Exception:
-        pass
-
+    
     return None
 
 
