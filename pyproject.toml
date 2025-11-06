@@ -1,11 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "nanobanana"
 version = "0.1.0"
-description = "Add your description here"
+description = "YouTube thumbnail generator MCP server + CLI (Gemini image model)"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastmcp>=2.12.5",
     "google-genai>=1.45.0",
     "python-dotenv>=1.1.1",
+]
+
+[project.scripts]
+nanobanana = "nanobanana.cli:main"
+nanobanana-mcp = "nanobanana.mcp_server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["nanobanana"]
+
+[tool.hatch.build]
+include = [
+    "nanobanana/**/*.py",
+    "nanobanana/system_prompt.md",
 ]
