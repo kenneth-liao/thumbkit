@@ -1,14 +1,13 @@
 {
-    "mcpServers": {
-        "nanobanana": {
-            "command": "/Users/kennethliao/.local/bin/uv",
-            "args": [
-                "run",
-                "/Users/kennethliao/projects/MCP/nanobanana/main.py"
-            ],
-            "env": {
-                "GEMINI_API_KEY": "${GEMINI_API_KEY}"
-            }
-        }
+  "mcpServers": {
+    "thumbkit": {
+      "command": "uvx",
+      "args": [
+        "thumbkit-mcp"
+      ],
+      "env": {
+        "GEMINI_API_KEY": "${GEMINI_API_KEY}"
+      }
     }
+  }
 }
