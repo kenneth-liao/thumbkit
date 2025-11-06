@@ -5,23 +5,23 @@ from typing import List, Optional
 from fastmcp import FastMCP
 from fastmcp.utilities.types import Image
 from fastmcp.tools.tool import ToolResult
+from dotenv import load_dotenv
 
-from nanobanana.core import (
+from thumbkit.core import (
     MODEL_NAME,
     generate_image_bytes,
     edit_image_bytes,
     load_default_system_prompt,
     save_image_bytes,
 )
-from dotenv import load_dotenv
+
 load_dotenv()
 
-
 # Server name displayed to MCP clients
-mcp = FastMCP("nanobanana")
+mcp = FastMCP("thumbkit")
 
-# Output dir: $NANOBANANA_OUTPUT_DIR or a hidden folder in CWD
-env = os.environ.get("NANOBANANA_OUTPUT_DIR")
+# Output dir: $THUMBKIT_OUTPUT_DIR (preferred) or $NANOBANANA_OUTPUT_DIR, else hidden folder in CWD
+env = os.environ.get("THUMBKIT_OUTPUT_DIR") or os.environ.get("NANOBANANA_OUTPUT_DIR")
 OUTPUT_DIR = (Path(env) if env else (Path.cwd() / ".nanobanana-generations")).resolve()
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -51,7 +51,7 @@ def generate_image(prompt: str, reference_image_paths: Optional[List[str]] = Non
         model_name=MODEL_NAME,
     )
 
-    file_path = save_image_bytes(image_bytes, OUTPUT_DIR, prefix="nanobanana")
+    file_path = save_image_bytes(image_bytes, OUTPUT_DIR, prefix="thumbkit")
     content = [Image(data=image_bytes, format="png"), f"Saved to {file_path}"]
     structured = {"file_path": file_path, "bytes": len(image_bytes), **meta}
     return ToolResult(content=content, structured_content=structured)
@@ -93,7 +93,7 @@ def edit_image(
         model_name=MODEL_NAME,
     )
 
-    file_path = save_image_bytes(image_bytes, OUTPUT_DIR, prefix="nanobanana-edit")
+    file_path = save_image_bytes(image_bytes, OUTPUT_DIR, prefix="thumbkit-edit")
     content = [Image(data=image_bytes, format="png"), f"Saved to {file_path}"]
     structured = {"file_path": file_path, "bytes": len(image_bytes), **meta}
     return ToolResult(content=content, structured_content=structured)

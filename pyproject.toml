@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "nanobanana"
+name = "thumbkit"
 version = "0.1.0"
-description = "YouTube thumbnail generator MCP server + CLI (Gemini image model)"
+description = "YouTube thumbnail generator MCP server + CLI (Gemini Nano Banana model)"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -15,14 +15,14 @@ dependencies = [
 ]
 
 [project.scripts]
-nanobanana = "nanobanana.cli:main"
-nanobanana-mcp = "nanobanana.mcp_server:main"
+thumbkit = "thumbkit.cli:main"
+thumbkit-mcp = "thumbkit.mcp_server:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["nanobanana"]
+packages = ["thumbkit"]
 
 [tool.hatch.build]
 include = [
-    "nanobanana/**/*.py",
-    "nanobanana/system_prompt.md",
+    "thumbkit/**/*.py",
+    "thumbkit/system_prompt.md",
 ]

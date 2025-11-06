@@ -13,12 +13,12 @@ MODEL_NAME = "gemini-2.5-flash-image"
 def load_default_system_prompt() -> Optional[str]:
     """Load the packaged default system prompt.
 
-    Looks for nanobanana/system_prompt.md packaged with the wheel.
+    Looks for thumbkit/system_prompt.md packaged with the wheel.
     Falls back to a project-root system_prompt.md when running from source.
     """
     # Try packaged resource first
     try:
-        pkg_file = resources.files("nanobanana").joinpath("system_prompt.md")
+        pkg_file = resources.files("thumbkit").joinpath("system_prompt.md")
         if pkg_file.is_file():
             text = pkg_file.read_text(encoding="utf-8").strip()
             if text:
@@ -151,7 +151,7 @@ def edit_image_bytes(
     return image_bytes, meta
 
 
-def save_image_bytes(image_bytes: bytes, out_dir: Path, *, prefix: str = "nanobanana") -> str:
+def save_image_bytes(image_bytes: bytes, out_dir: Path, *, prefix: str = "thumbkit") -> str:
     out_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.utcnow().strftime("%Y%m%d-%H%M%S-%f")
     path = out_dir / f"{prefix}-{ts}.png"

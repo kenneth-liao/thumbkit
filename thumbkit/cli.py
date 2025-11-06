@@ -5,16 +5,16 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
-from nanobanana.core import (
+from dotenv import load_dotenv
+from thumbkit.core import (
     MODEL_NAME,
     generate_image_bytes,
     edit_image_bytes,
     load_default_system_prompt,
     save_image_bytes,
 )
-from dotenv import load_dotenv
-load_dotenv()
 
+load_dotenv()
 
 
 def _read_text(path: Optional[str]) -> Optional[str]:
@@ -27,8 +27,8 @@ def _read_text(path: Optional[str]) -> Optional[str]:
 
 
 def _default_out_dir() -> Path:
-    # Allow override via env; otherwise use a hidden folder in CWD
-    env = os.environ.get("NANOBANANA_OUTPUT_DIR")
+    # Allow override via env; prefer THUMBKIT_OUTPUT_DIR, fallback to NANOBANANA_OUTPUT_DIR
+    env = os.environ.get("THUMBKIT_OUTPUT_DIR") or os.environ.get("NANOBANANA_OUTPUT_DIR")
     return Path(env) if env else (Path.cwd() / ".nanobanana-generations")
 
 
@@ -43,7 +43,7 @@ def cmd_generate(args: argparse.Namespace) -> int:
     )
 
     out_dir = Path(args.out_dir) if args.out_dir else _default_out_dir()
-    file_path = save_image_bytes(image_bytes, out_dir, prefix="nanobanana")
+    file_path = save_image_bytes(image_bytes, out_dir, prefix="thumbkit")
 
     result = {
         "file_path": file_path,
@@ -70,7 +70,7 @@ def cmd_edit(args: argparse.Namespace) -> int:
     )
 
     out_dir = Path(args.out_dir) if args.out_dir else _default_out_dir()
-    file_path = save_image_bytes(image_bytes, out_dir, prefix="nanobanana-edit")
+    file_path = save_image_bytes(image_bytes, out_dir, prefix="thumbkit-edit")
 
     result = {
         "file_path": file_path,
@@ -87,7 +87,7 @@ def cmd_edit(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser("nanobanana", description="YouTube thumbnail generator CLI (Gemini)")
+    p = argparse.ArgumentParser("thumbkit", description="YouTube thumbnail generator CLI (Gemini)")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     g = sub.add_parser("generate", help="Generate an image from text and optional reference images")
@@ -95,7 +95,7 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("--ref", action="append", help="Reference image file path (repeatable)")
     g.add_argument("--aspect", default="16:9", help="Aspect ratio (default: 16:9)")
     g.add_argument("--system-prompt", help="Path to a system prompt file to override default")
-    g.add_argument("--out-dir", help="Output directory (default: CWD or $NANOBANANA_OUTPUT_DIR)")
+    g.add_argument("--out-dir", help="Output directory (default: CWD or $THUMBKIT_OUTPUT_DIR)")
     g.add_argument("--json", action="store_true", help="Print JSON result")
     g.set_defaults(func=cmd_generate)
 
@@ -105,7 +105,7 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--ref", action="append", help="Reference image file path (repeatable)")
     e.add_argument("--aspect", default="16:9", help="Aspect ratio (default: 16:9)")
     e.add_argument("--system-prompt", help="Path to a system prompt file to override default")
-    e.add_argument("--out-dir", help="Output directory (default: CWD or $NANOBANANA_OUTPUT_DIR)")
+    e.add_argument("--out-dir", help="Output directory (default: CWD or $THUMBKIT_OUTPUT_DIR)")
     e.add_argument("--json", action="store_true", help="Print JSON result")
     e.set_defaults(func=cmd_edit)
 
