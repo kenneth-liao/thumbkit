@@ -379,30 +379,141 @@ thumbkit generate \
 
 ## Error Handling
 
-### Common Errors
+thumbkit provides **comprehensive, actionable error messages** specifically designed to help Claude agents debug and fix issues quickly. Every error includes:
+- Clear description of what went wrong
+- Specific solution steps
+- Code examples when applicable
 
-**Missing API Key:**
-```
-Error: Missing GEMINI_API_KEY (or GOOGLE_API_KEY) environment variable.
-```
-**Solution:** Set `GEMINI_API_KEY` or `GOOGLE_API_KEY` environment variable
+### Common Errors and Solutions
 
-**File Not Found:**
-```
-Error: [Errno 2] No such file or directory: 'image.png'
-```
-**Solution:** Verify file paths are correct and files exist
+#### 1. Relative Path Error
 
-**No Image Returned:**
+**Error:**
 ```
-Error: Gemini did not return image data.
+ERROR: --ref (image #1) must be an ABSOLUTE path, but got relative path: images/style.png
+
+SOLUTION: Convert to absolute path before calling thumbkit.
+Examples:
+  Python: os.path.abspath('images/style.png')
+  Shell:  $(realpath images/style.png)
+
+Since thumbkit is installed globally, it can be run from any directory.
+Relative paths will fail because they're resolved from the current working directory.
+Always use absolute paths like: /Users/username/images/file.png
 ```
-**Solution:** Check API key validity, prompt quality, or try again
+
+**What to do:** Convert all image paths to absolute paths before calling thumbkit.
+
+---
+
+#### 2. File Not Found
+
+**Error:**
+```
+ERROR: --ref (image #1) file does not exist: /Users/username/missing.png
+
+SOLUTION: Verify the file path is correct and the file exists.
+Check for typos in the path or ensure the file hasn't been moved/deleted.
+```
+
+**What to do:** Verify the file exists at the specified path. Check for typos.
+
+---
+
+#### 3. Invalid File Type
+
+**Error:**
+```
+ERROR: --ref (image #1) has unsupported file extension: .gif
+
+SOLUTION: Use one of these supported image formats:
+  - PNG (.png)
+  - JPEG (.jpg, .jpeg)
+  - WebP (.webp)
+
+Current file: /Users/username/image.gif
+```
+
+**What to do:** Convert the image to PNG, JPEG, or WebP format.
+
+---
+
+#### 4. Missing API Key
+
+**Error:**
+```
+ERROR: Missing GEMINI_API_KEY environment variable.
+
+SOLUTION: Set your Gemini API key in one of these ways:
+  1. Create a .env file in your current directory:
+     echo 'GEMINI_API_KEY=your-key-here' > .env
+
+  2. Export as environment variable:
+     export GEMINI_API_KEY='your-key-here'
+
+  3. Use GOOGLE_API_KEY instead (alternative name):
+     export GOOGLE_API_KEY='your-key-here'
+
+Get your API key at: https://ai.google.dev/
+```
+
+**What to do:** Set the API key using one of the methods shown.
+
+---
+
+#### 5. No Image Returned from API
+
+**Error:**
+```
+ERROR: Gemini API did not return image data.
+
+POSSIBLE CAUSES:
+  1. The prompt may have triggered content safety filters
+  2. The API request may have failed
+  3. The reference images may be incompatible
+
+SOLUTIONS:
+  - Try rephrasing your prompt to be less specific about people/brands
+  - Verify your API key is valid and has quota remaining
+  - Try without reference images to isolate the issue
+  - Check if reference images are valid and not corrupted
+```
+
+**What to do:** Follow the troubleshooting steps in order.
+
+---
+
+#### 6. Multiple Reference Images Syntax Error
+
+**Error:**
+```
+thumbkit generate: error: the following arguments are required: --prompt
+
+HINT: Common mistakes:
+  - To pass multiple reference images, use --ref multiple times:
+    thumbkit generate --prompt "..." --ref /path/1.png --ref /path/2.png
+  - All image paths MUST be absolute paths (start with /)
+  - Use --help to see all available options
+```
+
+**What to do:** Use `--ref` flag multiple times, not as a list.
+
+**❌ WRONG:**
+```bash
+thumbkit generate --prompt "test" --ref ["/path/1.png", "/path/2.png"]
+```
+
+**✅ CORRECT:**
+```bash
+thumbkit generate --prompt "test" --ref /path/1.png --ref /path/2.png
+```
+
+---
 
 ### Exit Codes
 
 - `0` - Success
-- `1` - Error occurred (check stderr for details)
+- `1` - Error occurred (detailed message in stderr)
 
 ---
 
@@ -491,12 +602,30 @@ Before passing any image path to thumbkit:
 
 ### Error Recovery
 
-**If generation fails:**
-1. Check API key is valid and set
-2. Verify all file paths exist
-3. Simplify the prompt if it's complex
-4. Try again (API may have temporary issues)
-5. Check stderr for specific error messages
+**thumbkit provides detailed error messages - always read them carefully!**
+
+Every error message includes:
+- **What went wrong** - Clear description of the error
+- **Why it happened** - Explanation of the root cause
+- **How to fix it** - Specific, actionable steps with examples
+
+**Error handling workflow:**
+1. **Read the full error message** - Don't just look at the first line
+2. **Follow the SOLUTION steps** - They're specific to the error type
+3. **Use the code examples** - Copy/paste the suggested fixes
+4. **Verify your fix** - Check that paths are absolute, files exist, etc.
+5. **Try again** - Most errors are fixable with the provided guidance
+
+**Common fixes:**
+- **Path errors** → Convert to absolute paths using `os.path.abspath()`
+- **File not found** → Verify file exists and path is correct
+- **API errors** → Check API key, quota, and network connection
+- **Syntax errors** → Use `--ref` multiple times, not as a list
+
+**If error persists after following solutions:**
+1. Verify you're using the latest version: `uv tool upgrade thumbkit`
+2. Check the error type - some errors (like content filters) may require prompt changes
+3. Try a simpler version of the command to isolate the issue
 
 ### Performance Considerations
 
