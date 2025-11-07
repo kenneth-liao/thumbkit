@@ -87,7 +87,7 @@ export GEMINI_API_KEY="your-api-key-here"
 
 **`THUMBKIT_OUTPUT_DIR`** (optional)
 - Custom output directory for generated images
-- If not set, defaults to `.thumbkit-generations/` in current working directory
+- If not set, defaults to `./youtube/thumbnails/` in current working directory
 
 ```bash
 export THUMBKIT_OUTPUT_DIR="/path/to/output"
@@ -118,7 +118,7 @@ thumbkit generate --prompt "PROMPT" [OPTIONS]
 | `--ref` | path | None | Reference image file path (repeatable for multiple images) |
 | `--aspect` | string | `16:9` | Aspect ratio for output image |
 | `--system-prompt` | path | Built-in | Path to custom system prompt file (overrides default) |
-| `--out-dir` | path | `.thumbkit-generations/` | Output directory for generated image |
+| `--out-dir` | path | `./youtube/thumbnails/` | Output directory for generated image |
 | `--json` | flag | false | Output result as JSON instead of human-readable text |
 
 #### Reference Images
@@ -153,13 +153,13 @@ thumbkit generate \
 
 **Without `--json` flag:**
 ```
-Saved to /path/to/.thumbkit-generations/thumbkit-20251106-214644-047173.png
+Saved to /path/to/youtube/thumbnails/thumbkit-20251106-214644-047173.png
 ```
 
 **With `--json` flag:**
 ```json
 {
-  "file_path": "/path/to/.thumbkit-generations/thumbkit-20251106-214644-047173.png",
+  "file_path": "/path/to/youtube/thumbnails/thumbkit-20251106-214644-047173.png",
   "bytes": 1265727,
   "aspect_ratio": "16:9",
   "reference_image_paths": []
@@ -190,7 +190,7 @@ thumbkit edit --prompt "EDIT_INSTRUCTIONS" --base "BASE_IMAGE" [OPTIONS]
 | `--ref` | path | None | Reference image file path for style transfer (repeatable) |
 | `--aspect` | string | `16:9` | Aspect ratio for output image |
 | `--system-prompt` | path | Built-in | Path to custom system prompt file (overrides default) |
-| `--out-dir` | path | `.thumbkit-generations/` | Output directory for edited image |
+| `--out-dir` | path | `./youtube/thumbnails/` | Output directory for edited image |
 | `--json` | flag | false | Output result as JSON instead of human-readable text |
 
 #### Image Paths
@@ -226,13 +226,13 @@ When using `edit`, images are sent to Gemini in this order:
 
 **Without `--json` flag:**
 ```
-Saved to /path/to/.thumbkit-generations/thumbkit-edit-20251106-214644-047173.png
+Saved to /path/to/youtube/thumbnails/thumbkit-edit-20251106-214644-047173.png
 ```
 
 **With `--json` flag:**
 ```json
 {
-  "file_path": "/path/to/.thumbkit-generations/thumbkit-edit-20251106-214644-047173.png",
+  "file_path": "/path/to/youtube/thumbnails/thumbkit-edit-20251106-214644-047173.png",
   "bytes": 1456892,
   "aspect_ratio": "16:9",
   "base_image_path": "original.png",
@@ -255,7 +255,7 @@ Generated files use timestamped names:
 
 1. `--out-dir` argument (if provided)
 2. `$THUMBKIT_OUTPUT_DIR` environment variable (if set)
-3. `.thumbkit-generations/` in current working directory (default)
+3. `./youtube/thumbnails/` in current working directory (default)
 
 ### File Format
 

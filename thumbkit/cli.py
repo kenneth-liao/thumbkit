@@ -94,7 +94,7 @@ def _read_text(path: Optional[str]) -> Optional[str]:
 def _default_out_dir() -> Path:
     # Allow override via THUMBKIT_OUTPUT_DIR environment variable
     env = os.environ.get("THUMBKIT_OUTPUT_DIR")
-    return Path(env) if env else (Path.cwd() / ".thumbkit-generations")
+    return Path(env) if env else (Path.cwd() / "youtube" / "thumbnails")
 
 
 def cmd_generate(args: argparse.Namespace) -> int:
@@ -218,7 +218,7 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("--ref", action="append", help="Reference image file path (repeatable)")
     g.add_argument("--aspect", default="16:9", help="Aspect ratio (default: 16:9)")
     g.add_argument("--system-prompt", help="Path to a system prompt file to override default")
-    g.add_argument("--out-dir", help="Output directory (default: CWD or $THUMBKIT_OUTPUT_DIR)")
+    g.add_argument("--out-dir", help="Output directory (default: ./youtube/thumbnails or $THUMBKIT_OUTPUT_DIR)")
     g.add_argument("--json", action="store_true", help="Print JSON result")
     g.set_defaults(func=cmd_generate)
 
@@ -228,7 +228,7 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--ref", action="append", help="Reference image file path (repeatable)")
     e.add_argument("--aspect", default="16:9", help="Aspect ratio (default: 16:9)")
     e.add_argument("--system-prompt", help="Path to a system prompt file to override default")
-    e.add_argument("--out-dir", help="Output directory (default: CWD or $THUMBKIT_OUTPUT_DIR)")
+    e.add_argument("--out-dir", help="Output directory (default: ./youtube/thumbnails or $THUMBKIT_OUTPUT_DIR)")
     e.add_argument("--json", action="store_true", help="Print JSON result")
     e.set_defaults(func=cmd_edit)
 
