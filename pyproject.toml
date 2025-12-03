@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "thumbkit"
-version = "0.1.0"
-description = "YouTube thumbnail generator MCP server + CLI (Gemini Nano Banana model)"
+version = "0.2.0"
+description = "YouTube thumbnail generator MCP server + CLI (Gemini Nano Banana / Nano Banana Pro)"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastmcp>=2.12.5",
-    "google-genai>=1.45.0",
+    "google-genai>=1.52.0",
     "python-dotenv>=1.1.1",
 ]
 

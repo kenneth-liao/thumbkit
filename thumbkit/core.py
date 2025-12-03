@@ -1,13 +1,31 @@
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Literal, Optional, Tuple
 
 from importlib import resources
 from google import genai
 from google.genai import types as gtypes
 
-MODEL_NAME = "gemini-2.5-flash-image"
+# Model identifiers
+MODEL_FLASH = "gemini-2.5-flash-image"  # Nano Banana (original)
+MODEL_PRO = "gemini-3-pro-image-preview"  # Nano Banana Pro (new default)
+
+# Default model (Pro for better quality)
+DEFAULT_MODEL = "pro"
+DEFAULT_SIZE = "1K"
+
+# Model name mapping
+MODEL_NAMES = {
+    "flash": MODEL_FLASH,
+    "pro": MODEL_PRO,
+}
+
+# Valid sizes for Pro model (Flash only supports 1K equivalent)
+VALID_SIZES = {"1K", "2K", "4K"}
+
+# Backwards compatibility
+MODEL_NAME = MODEL_PRO
 
 
 def load_default_system_prompt() -> Optional[str]:
@@ -52,16 +70,40 @@ def _inline_part_from_file(path: str) -> gtypes.Part:
     return gtypes.Part(inline_data=gtypes.Blob(mime_type=guess_mime(path), data=data))
 
 
+def resolve_model_name(model: str) -> str:
+    """Resolve model shorthand (flash/pro) to full API model name."""
+    if model in MODEL_NAMES:
+        return MODEL_NAMES[model]
+    # Allow passing full model name directly
+    if model in MODEL_NAMES.values():
+        return model
+    raise ValueError(f"Unknown model: {model}. Use 'flash' or 'pro'.")
+
+
 def generate_image_bytes(
     prompt: str,
     reference_image_paths: Optional[List[str]] = None,
     *,
     system_prompt: Optional[str] = None,
     aspect_ratio: str = "16:9",
-    model_name: str = MODEL_NAME,
+    model: str = DEFAULT_MODEL,
+    image_size: Optional[str] = DEFAULT_SIZE,
 ) -> Tuple[bytes, dict]:
-    """Generate an image and return (image_bytes, metadata)."""
+    """Generate an image and return (image_bytes, metadata).
+
+    Args:
+        prompt: Text description of the desired image.
+        reference_image_paths: Optional list of reference image paths.
+        system_prompt: Optional system prompt override.
+        aspect_ratio: Output aspect ratio (default: 16:9).
+        model: Model to use - 'pro' (default) or 'flash'.
+        image_size: Output size for Pro model - '1K', '2K', or '4K'. Ignored for Flash.
+
+    Returns:
+        Tuple of (image_bytes, metadata_dict).
+    """
     client = _get_client()
+    model_name = resolve_model_name(model)
 
     parts: list = []
     if reference_image_paths:
@@ -69,9 +111,15 @@ def generate_image_bytes(
             parts.append(_inline_part_from_file(p))
     parts.append(prompt)
 
+    # Build image config - size only applies to Pro model
+    # SDK uses camelCase: aspectRatio, imageSize
+    image_config_kwargs = {"aspectRatio": aspect_ratio}
+    if model_name == MODEL_PRO and image_size and image_size in VALID_SIZES:
+        image_config_kwargs["imageSize"] = image_size
+
     cfg = gtypes.GenerateContentConfig(
         response_modalities=["Image"],
-        image_config=gtypes.ImageConfig(aspect_ratio=aspect_ratio),
+        image_config=gtypes.ImageConfig(**image_config_kwargs),
     )
     if system_prompt:
         cfg.system_instruction = gtypes.Content(parts=[gtypes.Part(text=system_prompt)])
@@ -87,7 +135,10 @@ def generate_image_bytes(
         raise RuntimeError("Gemini did not return image data.")
 
     meta = {
+        "model": model,
+        "model_name": model_name,
         "aspect_ratio": aspect_ratio,
+        "image_size": image_size if model_name == MODEL_PRO else None,
         "reference_image_paths": reference_image_paths or [],
     }
     return image_bytes, meta
@@ -100,10 +151,25 @@ def edit_image_bytes(
     *,
     system_prompt: Optional[str] = None,
     aspect_ratio: str = "16:9",
-    model_name: str = MODEL_NAME,
+    model: str = DEFAULT_MODEL,
+    image_size: Optional[str] = DEFAULT_SIZE,
 ) -> Tuple[bytes, dict]:
-    """Edit an image and return (image_bytes, metadata)."""
+    """Edit an image and return (image_bytes, metadata).
+
+    Args:
+        prompt: Edit instructions in natural language.
+        base_image_path: Path to the primary image to edit.
+        reference_image_paths: Optional list of additional reference image paths.
+        system_prompt: Optional system prompt override.
+        aspect_ratio: Output aspect ratio (default: 16:9).
+        model: Model to use - 'pro' (default) or 'flash'.
+        image_size: Output size for Pro model - '1K', '2K', or '4K'. Ignored for Flash.
+
+    Returns:
+        Tuple of (image_bytes, metadata_dict).
+    """
     client = _get_client()
+    model_name = resolve_model_name(model)
 
     parts: list = []
     # Base first
@@ -115,9 +181,15 @@ def edit_image_bytes(
     # Text last
     parts.append(prompt)
 
+    # Build image config - size only applies to Pro model
+    # SDK uses camelCase: aspectRatio, imageSize
+    image_config_kwargs = {"aspectRatio": aspect_ratio}
+    if model_name == MODEL_PRO and image_size and image_size in VALID_SIZES:
+        image_config_kwargs["imageSize"] = image_size
+
     cfg = gtypes.GenerateContentConfig(
         response_modalities=["Image"],
-        image_config=gtypes.ImageConfig(aspect_ratio=aspect_ratio),
+        image_config=gtypes.ImageConfig(**image_config_kwargs),
     )
     if system_prompt:
         cfg.system_instruction = gtypes.Content(parts=[gtypes.Part(text=system_prompt)])
@@ -133,7 +205,10 @@ def edit_image_bytes(
         raise RuntimeError("Gemini did not return image data.")
 
     meta = {
+        "model": model,
+        "model_name": model_name,
         "aspect_ratio": aspect_ratio,
+        "image_size": image_size if model_name == MODEL_PRO else None,
         "base_image_path": base_image_path,
         "reference_image_paths": reference_image_paths or [],
     }

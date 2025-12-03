@@ -2,18 +2,28 @@ import argparse
 import json
 import os
 import sys
+from importlib import metadata
 from pathlib import Path
 from typing import List, Optional
 
 from importlib import resources
 from dotenv import load_dotenv, find_dotenv
 from thumbkit.core import (
-    MODEL_NAME,
+    DEFAULT_MODEL,
+    DEFAULT_SIZE,
+    VALID_SIZES,
     generate_image_bytes,
     edit_image_bytes,
     load_default_system_prompt,
     save_image_bytes,
 )
+
+def get_version() -> str:
+    """Get the package version from metadata."""
+    try:
+        return metadata.version("thumbkit")
+    except metadata.PackageNotFoundError:
+        return "0.0.0-dev"
 
 # Load .env from current working directory or parent directories
 load_dotenv(find_dotenv(usecwd=True))
@@ -121,7 +131,8 @@ def cmd_generate(args: argparse.Namespace) -> int:
         reference_image_paths=args.ref or None,
         system_prompt=system_prompt,
         aspect_ratio=args.aspect,
-        model_name=MODEL_NAME,
+        model=args.model,
+        image_size=args.size,
     )
 
     out_dir = Path(args.out_dir) if args.out_dir else _default_out_dir()
@@ -130,6 +141,8 @@ def cmd_generate(args: argparse.Namespace) -> int:
     result = {
         "file_path": file_path,
         "bytes": len(image_bytes),
+        "model": meta.get("model", args.model),
+        "image_size": meta.get("image_size"),
         "aspect_ratio": meta.get("aspect_ratio", args.aspect),
         "reference_image_paths": meta.get("reference_image_paths", args.ref or []),
     }
@@ -185,7 +198,8 @@ def cmd_edit(args: argparse.Namespace) -> int:
         reference_image_paths=args.ref or None,
         system_prompt=system_prompt,
         aspect_ratio=args.aspect,
-        model_name=MODEL_NAME,
+        model=args.model,
+        image_size=args.size,
     )
 
     out_dir = Path(args.out_dir) if args.out_dir else _default_out_dir()
@@ -194,6 +208,8 @@ def cmd_edit(args: argparse.Namespace) -> int:
     result = {
         "file_path": file_path,
         "bytes": len(image_bytes),
+        "model": meta.get("model", args.model),
+        "image_size": meta.get("image_size"),
         "aspect_ratio": meta.get("aspect_ratio", args.aspect),
         "base_image_path": args.base,
         "reference_image_paths": meta.get("reference_image_paths", args.ref or []),
@@ -211,12 +227,21 @@ def build_parser() -> argparse.ArgumentParser:
         description="YouTube thumbnail generator CLI (Gemini)",
         epilog="Run 'thumbkit docs' for full documentation"
     )
+    p.add_argument(
+        "-v", "--version",
+        action="version",
+        version=f"thumbkit {get_version()}"
+    )
     sub = p.add_subparsers(dest="cmd", required=False)
 
     g = sub.add_parser("generate", help="Generate an image from text and optional reference images")
     g.add_argument("--prompt", required=True, help="Text prompt")
     g.add_argument("--ref", action="append", help="Reference image file path (repeatable)")
     g.add_argument("--aspect", default="16:9", help="Aspect ratio (default: 16:9)")
+    g.add_argument("--model", default=DEFAULT_MODEL, choices=["flash", "pro"],
+                   help="Model to use: 'pro' (Gemini 3 Pro, default) or 'flash' (Gemini 2.5 Flash)")
+    g.add_argument("--size", default=DEFAULT_SIZE, choices=list(VALID_SIZES),
+                   help="Output size for Pro model: 1K (default), 2K, or 4K. Ignored for Flash.")
     g.add_argument("--system-prompt", help="Path to a system prompt file to override default")
     g.add_argument("--out-dir", help="Output directory (default: ./youtube/thumbnails or $THUMBKIT_OUTPUT_DIR)")
     g.add_argument("--json", action="store_true", help="Print JSON result")
@@ -227,6 +252,10 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--base", required=True, help="Base image path to edit")
     e.add_argument("--ref", action="append", help="Reference image file path (repeatable)")
     e.add_argument("--aspect", default="16:9", help="Aspect ratio (default: 16:9)")
+    e.add_argument("--model", default=DEFAULT_MODEL, choices=["flash", "pro"],
+                   help="Model to use: 'pro' (Gemini 3 Pro, default) or 'flash' (Gemini 2.5 Flash)")
+    e.add_argument("--size", default=DEFAULT_SIZE, choices=list(VALID_SIZES),
+                   help="Output size for Pro model: 1K (default), 2K, or 4K. Ignored for Flash.")
     e.add_argument("--system-prompt", help="Path to a system prompt file to override default")
     e.add_argument("--out-dir", help="Output directory (default: ./youtube/thumbnails or $THUMBKIT_OUTPUT_DIR)")
     e.add_argument("--json", action="store_true", help="Print JSON result")

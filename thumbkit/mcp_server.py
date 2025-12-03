@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from fastmcp import FastMCP
 from fastmcp.utilities.types import Image
@@ -8,7 +8,8 @@ from fastmcp.tools.tool import ToolResult
 from dotenv import load_dotenv
 
 from thumbkit.core import (
-    MODEL_NAME,
+    DEFAULT_MODEL,
+    DEFAULT_SIZE,
     generate_image_bytes,
     edit_image_bytes,
     load_default_system_prompt,
@@ -27,7 +28,12 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 @mcp.tool()
-def generate_image(prompt: str, reference_image_paths: Optional[List[str]] = None) -> ToolResult:
+def generate_image(
+    prompt: str,
+    reference_image_paths: Optional[List[str]] = None,
+    model: Literal["flash", "pro"] = DEFAULT_MODEL,
+    image_size: Literal["1K", "2K", "4K"] = DEFAULT_SIZE,
+) -> ToolResult:
     """Generate a 16:9 image from a text prompt using Gemini's image model.
 
     Args:
@@ -38,6 +44,10 @@ def generate_image(prompt: str, reference_image_paths: Optional[List[str]] = Non
         palette, subject emphasis, or layout. Use this for guided generation
         (not necessarily preserving a specific base image). 1–3 references
         typically work best. PNG/JPEG/WebP are supported.
+      model: Model to use - 'pro' (Gemini 3 Pro, default, higher quality, up to 4K)
+        or 'flash' (Gemini 2.5 Flash, faster, 1K only).
+      image_size: Output resolution for Pro model - '1K' (default), '2K', or '4K'.
+        Ignored when using Flash model.
 
     Returns:
       A ToolResult with an image content block and structured metadata.
@@ -48,7 +58,8 @@ def generate_image(prompt: str, reference_image_paths: Optional[List[str]] = Non
         reference_image_paths=reference_image_paths,
         system_prompt=system_prompt,
         aspect_ratio="16:9",
-        model_name=MODEL_NAME,
+        model=model,
+        image_size=image_size,
     )
 
     file_path = save_image_bytes(image_bytes, OUTPUT_DIR, prefix="thumbkit")
@@ -62,6 +73,8 @@ def edit_image(
     prompt: str,
     base_image_path: str,
     reference_image_paths: Optional[List[str]] = None,
+    model: Literal["flash", "pro"] = DEFAULT_MODEL,
+    image_size: Literal["1K", "2K", "4K"] = DEFAULT_SIZE,
 ) -> ToolResult:
     """Edit an image by providing a prompt and one or more input images.
 
@@ -79,6 +92,10 @@ def edit_image(
         are used as guidance; the base image remains the primary subject. PNG/
         JPEG/WebP are supported. The order of references can influence style
         emphasis.
+      model: Model to use - 'pro' (Gemini 3 Pro, default, higher quality, up to 4K)
+        or 'flash' (Gemini 2.5 Flash, faster, 1K only).
+      image_size: Output resolution for Pro model - '1K' (default), '2K', or '4K'.
+        Ignored when using Flash model.
 
     Returns:
       A ToolResult with an image content block and structured metadata.
@@ -90,7 +107,8 @@ def edit_image(
         reference_image_paths=reference_image_paths,
         system_prompt=system_prompt,
         aspect_ratio="16:9",
-        model_name=MODEL_NAME,
+        model=model,
+        image_size=image_size,
     )
 
     file_path = save_image_bytes(image_bytes, OUTPUT_DIR, prefix="thumbkit-edit")

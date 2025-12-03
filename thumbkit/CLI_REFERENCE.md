@@ -1,7 +1,8 @@
 # thumbkit CLI Reference
 
-**Version:** 0.1.0  
-**Model:** Gemini 2.5 Flash Image (`gemini-2.5-flash-image`)  
+**Version:** 0.2.0
+**Default Model:** Gemini 3 Pro Preview (`gemini-3-pro-image-preview`) — Nano Banana Pro
+**Alternative Model:** Gemini 2.5 Flash Image (`gemini-2.5-flash-image`) — Nano Banana
 **Purpose:** Generate and edit YouTube thumbnails using AI
 
 ---
@@ -9,21 +10,22 @@
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Installation](#installation)
-3. [Environment Setup](#environment-setup)
-4. [Commands](#commands)
+2. [Model Selection](#model-selection)
+3. [Installation](#installation)
+4. [Environment Setup](#environment-setup)
+5. [Commands](#commands)
    - [generate](#generate-command)
    - [edit](#edit-command)
-5. [Output Behavior](#output-behavior)
-6. [System Prompt](#system-prompt)
-7. [Error Handling](#error-handling)
-8. [Best Practices for Claude Agents](#best-practices-for-claude-agents)
+6. [Output Behavior](#output-behavior)
+7. [System Prompt](#system-prompt)
+8. [Error Handling](#error-handling)
+9. [Best Practices for Claude Agents](#best-practices-for-claude-agents)
 
 ---
 
 ## Overview
 
-`thumbkit` is a CLI tool for generating YouTube thumbnails using Google's Gemini image generation model. It provides two main commands:
+`thumbkit` is a CLI tool for generating YouTube thumbnails using Google's Gemini image generation models. It provides two main commands:
 
 - **`generate`** - Create new thumbnails from text prompts with optional reference images
 - **`edit`** - Modify existing images with optional reference images for style transfer
@@ -33,6 +35,47 @@ All generated images are:
 - **PNG format**
 - Saved with timestamped filenames
 - Optimized for high-converting YouTube thumbnails
+
+## Model Selection
+
+thumbkit supports two Gemini image generation models:
+
+### Gemini 3 Pro Preview (Default) — `--model pro`
+
+- **API Name:** `gemini-3-pro-image-preview` (Nano Banana Pro)
+- **Resolution:** Up to 4K (configurable via `--size`)
+- **Features:** "Thinking" process for better composition, Google Search grounding, higher quality
+- **Best for:** Production-quality thumbnails, complex compositions
+
+### Gemini 2.5 Flash Image — `--model flash`
+
+- **API Name:** `gemini-2.5-flash-image` (Nano Banana)
+- **Resolution:** 1K only
+- **Features:** Faster generation, lower cost
+- **Best for:** Quick iterations, drafts, high-volume generation
+
+### Size Options (Pro model only)
+
+| Size | Resolution (16:9) | Use Case |
+|------|-------------------|----------|
+| `1K` | 1376x768 | Default, good balance of quality and speed |
+| `2K` | 2752x1536 | Higher quality, larger file size |
+| `4K` | 5504x3072 | Maximum quality, largest file size |
+
+**Note:** The `--size` option is ignored when using the Flash model.
+
+### Examples
+
+```bash
+# Default: Pro model at 1K resolution
+thumbkit generate --prompt "Eye-catching tech tutorial thumbnail"
+
+# Pro model at 2K resolution for higher quality
+thumbkit generate --prompt "Eye-catching tech tutorial thumbnail" --size 2K
+
+# Flash model for faster iteration
+thumbkit generate --prompt "Eye-catching tech tutorial thumbnail" --model flash
+```
 
 ## Installation
 
@@ -117,6 +160,8 @@ thumbkit generate --prompt "PROMPT" [OPTIONS]
 |----------|------|---------|-------------|
 | `--ref` | path | None | Reference image file path (repeatable for multiple images) |
 | `--aspect` | string | `16:9` | Aspect ratio for output image |
+| `--model` | string | `pro` | Model to use: `pro` (Gemini 3 Pro, higher quality) or `flash` (Gemini 2.5 Flash, faster) |
+| `--size` | string | `1K` | Output resolution for Pro model: `1K`, `2K`, or `4K`. Ignored for Flash. |
 | `--system-prompt` | path | Built-in | Path to custom system prompt file (overrides default) |
 | `--out-dir` | path | `./youtube/thumbnails/` | Output directory for generated image |
 | `--json` | flag | false | Output result as JSON instead of human-readable text |
@@ -161,6 +206,8 @@ Saved to /path/to/youtube/thumbnails/thumbkit-20251106-214644-047173.png
 {
   "file_path": "/path/to/youtube/thumbnails/thumbkit-20251106-214644-047173.png",
   "bytes": 1265727,
+  "model": "pro",
+  "image_size": "1K",
   "aspect_ratio": "16:9",
   "reference_image_paths": []
 }
@@ -189,6 +236,8 @@ thumbkit edit --prompt "EDIT_INSTRUCTIONS" --base "BASE_IMAGE" [OPTIONS]
 |----------|------|---------|-------------|
 | `--ref` | path | None | Reference image file path for style transfer (repeatable) |
 | `--aspect` | string | `16:9` | Aspect ratio for output image |
+| `--model` | string | `pro` | Model to use: `pro` (Gemini 3 Pro, higher quality) or `flash` (Gemini 2.5 Flash, faster) |
+| `--size` | string | `1K` | Output resolution for Pro model: `1K`, `2K`, or `4K`. Ignored for Flash. |
 | `--system-prompt` | path | Built-in | Path to custom system prompt file (overrides default) |
 | `--out-dir` | path | `./youtube/thumbnails/` | Output directory for edited image |
 | `--json` | flag | false | Output result as JSON instead of human-readable text |
@@ -234,6 +283,8 @@ Saved to /path/to/youtube/thumbnails/thumbkit-edit-20251106-214644-047173.png
 {
   "file_path": "/path/to/youtube/thumbnails/thumbkit-edit-20251106-214644-047173.png",
   "bytes": 1456892,
+  "model": "pro",
+  "image_size": "1K",
   "aspect_ratio": "16:9",
   "base_image_path": "original.png",
   "reference_image_paths": ["style.png"]
