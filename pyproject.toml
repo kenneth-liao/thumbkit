@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "thumbkit"
-version = "0.2.0"
+version = "0.2.1"
 description = "YouTube thumbnail generator MCP server + CLI (Gemini Nano Banana / Nano Banana Pro)"
 readme = "README.md"
 requires-python = ">=3.13"
