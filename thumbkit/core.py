@@ -43,7 +43,7 @@ def load_default_system_prompt() -> Optional[str]:
                 return text
     except Exception:
         pass
-    
+
     return None
 
 
@@ -51,7 +51,14 @@ def _get_client() -> genai.Client:
     api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
     if not api_key:
         raise RuntimeError("Missing GEMINI_API_KEY (or GOOGLE_API_KEY) environment variable.")
-    return genai.Client(api_key=api_key)
+    # Enable built-in retry with SDK defaults (5 attempts, exponential backoff)
+    # Retries on: 408, 429, 500, 502, 503, 504
+    return genai.Client(
+        api_key=api_key,
+        http_options=gtypes.HttpOptions(
+            retry_options=gtypes.HttpRetryOptions()
+        )
+    )
 
 
 def guess_mime(path: str) -> str:
@@ -78,6 +85,22 @@ def resolve_model_name(model: str) -> str:
     if model in MODEL_NAMES.values():
         return model
     raise ValueError(f"Unknown model: {model}. Use 'flash' or 'pro'.")
+
+
+def _get_safety_settings() -> List[gtypes.SafetySetting]:
+    """Return permissive safety settings to allow more creative content."""
+    # Set all harm categories to OFF to minimize content filtering
+    categories = [
+        "HARM_CATEGORY_HARASSMENT",
+        "HARM_CATEGORY_HATE_SPEECH",
+        "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        "HARM_CATEGORY_DANGEROUS_CONTENT",
+        "HARM_CATEGORY_CIVIC_INTEGRITY",
+    ]
+    return [
+        gtypes.SafetySetting(category=cat, threshold="OFF")
+        for cat in categories
+    ]
 
 
 def generate_image_bytes(
@@ -120,19 +143,34 @@ def generate_image_bytes(
     cfg = gtypes.GenerateContentConfig(
         response_modalities=["Image"],
         image_config=gtypes.ImageConfig(**image_config_kwargs),
+        safety_settings=_get_safety_settings(),
     )
     if system_prompt:
         cfg.system_instruction = gtypes.Content(parts=[gtypes.Part(text=system_prompt)])
 
     response = client.models.generate_content(model=model_name, contents=parts, config=cfg)
 
+    # Better error handling for empty/filtered responses
+    if not response.candidates:
+        block_reason = getattr(response, 'prompt_feedback', None)
+        raise RuntimeError(f"Gemini returned no candidates. Prompt feedback: {block_reason}")
+
+    candidate = response.candidates[0]
+    if not candidate.content or not candidate.content.parts:
+        finish_reason = getattr(candidate, 'finish_reason', 'unknown')
+        safety_ratings = getattr(candidate, 'safety_ratings', None)
+        raise RuntimeError(
+            f"Gemini returned empty content. Finish reason: {finish_reason}, "
+            f"Safety ratings: {safety_ratings}"
+        )
+
     image_bytes: Optional[bytes] = None
-    for part in response.candidates[0].content.parts:
+    for part in candidate.content.parts:
         if getattr(part, "inline_data", None):
             image_bytes = part.inline_data.data
             break
     if image_bytes is None:
-        raise RuntimeError("Gemini did not return image data.")
+        raise RuntimeError("Gemini did not return image data in response parts.")
 
     meta = {
         "model": model,
@@ -190,19 +228,34 @@ def edit_image_bytes(
     cfg = gtypes.GenerateContentConfig(
         response_modalities=["Image"],
         image_config=gtypes.ImageConfig(**image_config_kwargs),
+        safety_settings=_get_safety_settings(),
     )
     if system_prompt:
         cfg.system_instruction = gtypes.Content(parts=[gtypes.Part(text=system_prompt)])
 
     response = client.models.generate_content(model=model_name, contents=parts, config=cfg)
 
+    # Better error handling for empty/filtered responses
+    if not response.candidates:
+        block_reason = getattr(response, 'prompt_feedback', None)
+        raise RuntimeError(f"Gemini returned no candidates. Prompt feedback: {block_reason}")
+
+    candidate = response.candidates[0]
+    if not candidate.content or not candidate.content.parts:
+        finish_reason = getattr(candidate, 'finish_reason', 'unknown')
+        safety_ratings = getattr(candidate, 'safety_ratings', None)
+        raise RuntimeError(
+            f"Gemini returned empty content. Finish reason: {finish_reason}, "
+            f"Safety ratings: {safety_ratings}"
+        )
+
     image_bytes: Optional[bytes] = None
-    for part in response.candidates[0].content.parts:
+    for part in candidate.content.parts:
         if getattr(part, "inline_data", None):
             image_bytes = part.inline_data.data
             break
     if image_bytes is None:
-        raise RuntimeError("Gemini did not return image data.")
+        raise RuntimeError("Gemini did not return image data in response parts.")
 
     meta = {
         "model": model,
@@ -221,4 +274,3 @@ def save_image_bytes(image_bytes: bytes, out_dir: Path, *, prefix: str = "thumbk
     path = out_dir / f"{prefix}-{ts}.png"
     path.write_bytes(image_bytes)
     return str(path)
-
